@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { Card, CardContent } from "@/components/ui/card";
 
 interface Surah {
   number: number;
@@ -36,33 +36,35 @@ const SurahList = ({ searchQuery, onSurahSelect }: SurahListProps) => {
   return (
     <div className="space-y-3">
       {filteredSurahs.map((surah) => (
-        <div
+        <Card
           key={surah.number}
           onClick={() => onSurahSelect(surah)}
-          className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20 cursor-pointer hover:bg-white/20 transition-all duration-200 transform hover:scale-[1.02]"
+          className="bg-white/10 backdrop-blur-sm border-white/20 cursor-pointer hover:bg-white/20 transition-all duration-200 transform hover:scale-[1.02]"
         >
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              {/* Surah Number */}
-              <div className="w-10 h-10 bg-purple-500/30 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-sm">{surah.number}</span>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                {/* Surah Number */}
+                <div className="w-10 h-10 bg-purple-500/30 rounded-lg flex items-center justify-center">
+                  <span className="text-white font-bold text-sm">{surah.number}</span>
+                </div>
+                
+                {/* Surah Info */}
+                <div>
+                  <h3 className="text-white font-semibold text-lg">{surah.name}</h3>
+                  <p className="text-white/70 text-sm">
+                    {surah.revelation} • {surah.verses} VERSES
+                  </p>
+                </div>
               </div>
               
-              {/* Surah Info */}
-              <div>
-                <h3 className="text-white font-semibold text-lg">{surah.name}</h3>
-                <p className="text-white/70 text-sm">
-                  {surah.revelation} • {surah.verses} VERSES
-                </p>
+              {/* Arabic Name */}
+              <div className="text-right">
+                <p className="text-white font-semibold text-xl" dir="rtl">{surah.arabicName}</p>
               </div>
             </div>
-            
-            {/* Arabic Name */}
-            <div className="text-right">
-              <p className="text-white font-semibold text-xl" dir="rtl">{surah.arabicName}</p>
-            </div>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
       ))}
     </div>
   );
