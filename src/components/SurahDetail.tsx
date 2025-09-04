@@ -1,7 +1,8 @@
-
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { useState } from "react";
+import MediaPlayer from "./MediaPlayer";
 
 interface Surah {
   number: number;
@@ -52,10 +53,16 @@ const sampleVerses = [
 ];
 
 const SurahDetail = ({ surah, onBack }: SurahDetailProps) => {
+  const [showMediaPlayer, setShowMediaPlayer] = useState(false);
+  
   // Use sample verses for Al-Fatiah, otherwise show placeholder
   const verses = surah.number === 1 ? sampleVerses : [
     { number: 1, arabic: "بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ", translation: "In the name of Allah, the Entirely Merciful, the Especially Merciful." }
   ];
+
+  const handlePlayAudio = () => {
+    setShowMediaPlayer(true);
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-400 via-purple-500 to-purple-600 pb-20">
@@ -90,6 +97,18 @@ const SurahDetail = ({ surah, onBack }: SurahDetailProps) => {
             </div>
             <div className="mt-4">
               <p className="text-white text-3xl font-bold" dir="rtl">{surah.arabicName}</p>
+            </div>
+            
+            {/* Audio Play Button */}
+            <div className="mt-6">
+              <Button 
+                onClick={handlePlayAudio}
+                className="bg-white/20 hover:bg-white/30 text-white border border-white/30"
+                variant="outline"
+              >
+                <Play className="h-4 w-4 mr-2" />
+                Play Audio
+              </Button>
             </div>
           </CardContent>
         </Card>
@@ -144,6 +163,15 @@ const SurahDetail = ({ surah, onBack }: SurahDetailProps) => {
           ))}
         </div>
       </div>
+
+      {/* Media Player */}
+      {showMediaPlayer && (
+        <MediaPlayer
+          surahName={surah.name}
+          arabicName={surah.arabicName}
+          onClose={() => setShowMediaPlayer(false)}
+        />
+      )}
     </div>
   );
 };
