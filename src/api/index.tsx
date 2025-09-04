@@ -5,6 +5,21 @@ export interface ApiResponse<T> {
   data: T;
 }
 
+export interface ApiAyat {
+  nomorAyat: number;
+  teksArab: string;
+  teksLatin: string;
+  teksIndonesia: string;
+  audio: Record<string, string>;
+}
+
+export interface ApiSurahBrief {
+  nomor: number;
+  nama: string;
+  namaLatin: string;
+  jumlahAyat: number;
+}
+
 export interface ApiSurah {
   nomor: number;
   nama: string;
@@ -14,6 +29,9 @@ export interface ApiSurah {
   arti: string;
   deskripsi: string;
   audioFull: Record<string, string>;
+  ayat?: ApiAyat[];
+  suratSelanjutnya?: ApiSurahBrief;
+  suratSebelumnya?: ApiSurahBrief;
 }
 
 const baseUrl = "https://equran.id/api/v2";

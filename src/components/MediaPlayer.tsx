@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Play, Pause, SkipBack, SkipForward, X, Volume2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -15,10 +15,92 @@ const MediaPlayer = ({ surahName, arabicName, audioUrl, onClose }: MediaPlayerPr
   const [isPlaying, setIsPlaying] = useState(false);
   const [progress, setProgress] = useState([0]);
   const [volume, setVolume] = useState([80]);
+  const [duration, setDuration] = useState(0);
+  const [currentTime, setCurrentTime] = useState(0);
+  
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const animationRef = useRef<number>();
+
+  useEffect(() => {
+    // Create audio element
+    const audio = new Audio(audioUrl);
+    audioRef.current = audio;
+    
+    // Set volume
+    audio.volume = volume[0] / 100;
+    
+    // Event listeners
+    audio.addEventListener('loadedmetadata', () => {
+      setDuration(audio.duration);
+    });
+    
+    audio.addEventListener('ended', () => {
+      setIsPlaying(false);
+      setProgress([0]);
+      setCurrentTime(0);
+    });
+    
+    // Clean up
+    return () => {
+      audio.pause();
+      if (animationRef.current) {
+        cancelAnimationFrame(animationRef.current);
+      }
+      audio.remove();
+    };
+  }, [audioUrl]);
+
+  // Update volume when slider changes
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.volume = volume[0] / 100;
+    }
+  }, [volume]);
 
   const handlePlayPause = () => {
+    if (!audioRef.current) return;
+    
+    if (isPlaying) {
+      audioRef.current.pause();
+      if (animationRef.current) {
+        cancelAnimationFrame(animationRef.current);
+      }
+    } else {
+      audioRef.current.play();
+      animationRef.current = requestAnimationFrame(updateProgress);
+    }
+    
     setIsPlaying(!isPlaying);
-    // TODO: Implement actual audio play/pause logic
+  };
+
+  const updateProgress = () => {
+    if (!audioRef.current) return;
+    
+    const currentTime = audioRef.current.currentTime;
+    const duration = audioRef.current.duration;
+    
+    setCurrentTime(currentTime);
+    setProgress([Math.floor((currentTime / duration) * 100)]);
+    
+    animationRef.current = requestAnimationFrame(updateProgress);
+  };
+
+  const handleProgressChange = (value: number[]) => {
+    if (!audioRef.current || !duration) return;
+    
+    const newTime = (value[0] / 100) * duration;
+    audioRef.current.currentTime = newTime;
+    setProgress(value);
+    setCurrentTime(newTime);
+  };
+
+  // Format time in mm:ss
+  const formatTime = (time: number) => {
+    if (!time) return "0:00";
+    
+    const minutes = Math.floor(time / 60);
+    const seconds = Math.floor(time % 60);
+    return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
   };
 
   return (
@@ -28,14 +110,14 @@ const MediaPlayer = ({ surahName, arabicName, audioUrl, onClose }: MediaPlayerPr
         <div className="mb-4">
           <Slider
             value={progress}
-            onValueChange={setProgress}
+            onValueChange={(value) => handleProgressChange(value)}
             max={100}
             step={1}
             className="w-full"
           />
           <div className="flex justify-between text-xs text-muted-foreground mt-1">
-            <span>0:00</span>
-            <span>--:--</span>
+            <span>{formatTime(currentTime)}</span>
+            <span>{formatTime(duration)}</span>
           </div>
         </div>
 
@@ -58,6 +140,7 @@ const MediaPlayer = ({ surahName, arabicName, audioUrl, onClose }: MediaPlayerPr
               size="sm" 
               className="h-10 w-10 p-0 rounded-full"
               onClick={handlePlayPause}
+              disabled={!audioUrl}
             >
               {isPlaying ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5" />}
             </Button>

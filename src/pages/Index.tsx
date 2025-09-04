@@ -10,9 +10,18 @@ import SurahList from "@/components/SurahList";
 import SurahDetail from "@/components/SurahDetail";
 import BottomNavigation from "@/components/BottomNavigation";
 
+interface Surah {
+  number: number;
+  name: string;
+  arabicName: string;
+  englishName: string;
+  verses: number;
+  revelation: string;
+}
+
 const Index = () => {
   const [currentScreen, setCurrentScreen] = useState<'welcome' | 'home' | 'surah'>('welcome');
-  const [selectedSurah, setSelectedSurah] = useState<any>(null);
+  const [selectedSurah, setSelectedSurah] = useState<Surah | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState('home');
 
@@ -20,7 +29,7 @@ const Index = () => {
     setCurrentScreen('home');
   };
 
-  const handleSurahSelect = (surah: any) => {
+  const handleSurahSelect = (surah: Surah) => {
     setSelectedSurah(surah);
     setCurrentScreen('surah');
   };

@@ -1,8 +1,9 @@
-import { ArrowLeft, Play } from "lucide-react";
+import { ArrowLeft, Play, ArrowLeftCircle, ArrowRightCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import MediaPlayer from "./MediaPlayer";
+import { getSurahById, ApiSurah, ApiAyat } from "@/api";
 
 interface Surah {
   number: number;
@@ -16,53 +17,95 @@ interface Surah {
 interface SurahDetailProps {
   surah: Surah;
   onBack: () => void;
+  onSurahChange?: (surahNumber: number) => void;
 }
 
-// Sample verses for Al-Fatiah
-const sampleVerses = [
-  {
-    number: 1,
-    arabic: "الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ",
-    translation: "[All] praise is [due] to Allah, Lord of the worlds -"
-  },
-  {
-    number: 2,
-    arabic: "الرَّحْمَنِ الرَّحِيمِ",
-    translation: "The Entirely Merciful, the Especially Merciful,"
-  },
-  {
-    number: 3,
-    arabic: "مَالِكِ يَوْمِ الدِّينِ",
-    translation: "Sovereign of the Day of Recompense."
-  },
-  {
-    number: 4,
-    arabic: "إِيَّاكَ نَعْبُدُ وَإِيَّاكَ نَسْتَعِينُ",
-    translation: "It is You we worship and You we ask for help."
-  },
-  {
-    number: 5,
-    arabic: "اهْدِنَا الصِّرَاطَ الْمُسْتَقِيمَ",
-    translation: "Guide us to the straight path -"
-  },
-  {
-    number: 6,
-    arabic: "صِرَاطَ الَّذِينَ أَنْعَمْتَ عَلَيْهِمْ غَيْرِ الْمَغْضُوبِ عَلَيْهِمْ وَلَا الضَّالِّينَ",
-    translation: "The path of those upon whom You have bestowed favor, not of those who have evoked [Your] anger or of those who are astray."
-  }
-];
-
-const SurahDetail = ({ surah, onBack }: SurahDetailProps) => {
+const SurahDetail = ({ surah: initialSurah, onBack, onSurahChange }: SurahDetailProps) => {
   const [showMediaPlayer, setShowMediaPlayer] = useState(false);
+  const [surahDetail, setSurahDetail] = useState<ApiSurah | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [selectedAudioUrl, setSelectedAudioUrl] = useState<string>("");
+  const [currentSurah, setCurrentSurah] = useState<Surah>(initialSurah);
   
-  // Use sample verses for Al-Fatiah, otherwise show placeholder
-  const verses = surah.number === 1 ? sampleVerses : [
-    { number: 1, arabic: "بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ", translation: "In the name of Allah, the Entirely Merciful, the Especially Merciful." }
-  ];
+  useEffect(() => {
+    const fetchSurahDetail = async () => {
+      try {
+        setLoading(true);
+        const response = await getSurahById(currentSurah.number);
+        setSurahDetail(response.data);
+        
+        // Set default audio URL (first reciter)
+        if (response.data.audioFull && Object.keys(response.data.audioFull).length > 0) {
+          const firstReciterKey = Object.keys(response.data.audioFull)[0];
+          setSelectedAudioUrl(response.data.audioFull[firstReciterKey].trim());
+        }
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'An unknown error occurred');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchSurahDetail();
+  }, [currentSurah.number]);
 
   const handlePlayAudio = () => {
     setShowMediaPlayer(true);
   };
+
+  const handleNavigateToSurah = async (surahNumber: number) => {
+    try {
+      setLoading(true);
+      const response = await getSurahById(surahNumber);
+      setSurahDetail(response.data);
+      
+      // Update audio URL for new surah
+      if (response.data.audioFull && Object.keys(response.data.audioFull).length > 0) {
+        const firstReciterKey = Object.keys(response.data.audioFull)[0];
+        setSelectedAudioUrl(response.data.audioFull[firstReciterKey].trim());
+      } else {
+        setSelectedAudioUrl("");
+      }
+      
+      // Update current surah information
+      const newSurah: Surah = {
+        number: response.data.nomor,
+        name: response.data.namaLatin,
+        arabicName: response.data.nama,
+        englishName: response.data.arti,
+        verses: response.data.jumlahAyat,
+        revelation: response.data.tempatTurun.toUpperCase() === "MEKAH" ? "MECCAN" : "MEDINAN"
+      };
+      
+      setCurrentSurah(newSurah);
+      
+      // Also notify parent component if needed
+      if (onSurahChange) {
+        onSurahChange(surahNumber);
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An unknown error occurred');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-purple-400 via-purple-500 to-purple-600 flex items-center justify-center">
+        <p className="text-white text-xl">Loading surah details...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-purple-400 via-purple-500 to-purple-600 flex items-center justify-center">
+        <p className="text-red-200 text-xl">Error: {error}</p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-400 via-purple-500 to-purple-600 pb-20">
@@ -78,25 +121,25 @@ const SurahDetail = ({ surah, onBack }: SurahDetailProps) => {
             >
               <ArrowLeft className="h-5 w-5" />
             </Button>
-            <h1 className="text-xl font-bold text-white">{surah.name}</h1>
+            <h1 className="text-xl font-bold text-white">{currentSurah.name}</h1>
           </div>
         </div>
       </header>
 
       {/* Main Content */}
-      <div className="container mx-auto px-4 py-6">
+      <div className="container mx-auto px-4 py-6 mb-12">
         {/* Surah Header */}
         <Card className="bg-white/15 backdrop-blur-md border-white/20 mb-6">
           <CardContent className="p-6 text-center">
-            <h2 className="text-white text-2xl font-bold mb-2">{surah.name}</h2>
-            <p className="text-white/80 text-lg mb-3">{surah.englishName}</p>
+            <h2 className="text-white text-2xl font-bold mb-2">{currentSurah.name}</h2>
+            <p className="text-white/80 text-lg mb-3">{currentSurah.englishName}</p>
             <div className="flex items-center justify-center gap-4 text-white/70 text-sm">
-              <span>{surah.revelation}</span>
+              <span>{currentSurah.revelation}</span>
               <span>•</span>
-              <span>{surah.verses} VERSES</span>
+              <span>{currentSurah.verses} VERSES</span>
             </div>
             <div className="mt-4">
-              <p className="text-white text-3xl font-bold" dir="rtl">{surah.arabicName}</p>
+              <p className="text-white text-3xl font-bold" dir="rtl">{currentSurah.arabicName}</p>
             </div>
             
             {/* Audio Play Button */}
@@ -105,6 +148,7 @@ const SurahDetail = ({ surah, onBack }: SurahDetailProps) => {
                 onClick={handlePlayAudio}
                 className="bg-white/20 hover:bg-white/30 text-white border border-white/30"
                 variant="outline"
+                disabled={!selectedAudioUrl}
               >
                 <Play className="h-4 w-4 mr-2" />
                 Play Audio
@@ -115,15 +159,15 @@ const SurahDetail = ({ surah, onBack }: SurahDetailProps) => {
 
         {/* Verses */}
         <div className="space-y-4">
-          {verses.map((verse) => (
+          {surahDetail?.ayat?.map((verse: ApiAyat) => (
             <Card
-              key={verse.number}
+              key={verse.nomorAyat}
               className="bg-white/10 backdrop-blur-sm border-white/20"
             >
               <CardContent className="p-6">
                 <div className="flex items-center gap-3 mb-4">
                   <div className="w-8 h-8 bg-purple-500/30 rounded-full flex items-center justify-center">
-                    <span className="text-white font-bold text-sm">{verse.number}</span>
+                    <span className="text-white font-bold text-sm">{verse.nomorAyat}</span>
                   </div>
                   <div className="flex gap-2">
                     <Button variant="ghost" size="sm" className="text-white/70 hover:bg-white/20 p-2">
@@ -133,7 +177,18 @@ const SurahDetail = ({ surah, onBack }: SurahDetailProps) => {
                         <line x1="12" y1="2" x2="12" y2="15"/>
                       </svg>
                     </Button>
-                    <Button variant="ghost" size="sm" className="text-white/70 hover:bg-white/20 p-2">
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="text-white/70 hover:bg-white/20 p-2"
+                      onClick={() => {
+                        if (verse.audio && Object.keys(verse.audio).length > 0) {
+                          const firstReciterKey = Object.keys(verse.audio)[0];
+                          setSelectedAudioUrl(verse.audio[firstReciterKey].trim());
+                          setShowMediaPlayer(true);
+                        }
+                      }}
+                    >
                       <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                         <polygon points="23 7 16 12 23 17 23 7"/>
                         <polygon points="14 7 7 12 14 17 14 7"/>
@@ -150,25 +205,61 @@ const SurahDetail = ({ surah, onBack }: SurahDetailProps) => {
                 {/* Arabic Text */}
                 <div className="mb-4">
                   <p className="text-white text-2xl leading-relaxed text-right" dir="rtl">
-                    {verse.arabic}
+                    {verse.teksArab}
                   </p>
                 </div>
                 
                 {/* Translation */}
                 <p className="text-white/80 text-base leading-relaxed">
-                  {verse.translation}
+                  {verse.teksIndonesia}
                 </p>
               </CardContent>
             </Card>
           ))}
+        </div>
+
+        {/* Navigation Buttons */}
+        <div className="mt-8 flex justify-between">
+          {surahDetail?.suratSebelumnya ? (
+            <Button
+              variant="outline"
+              className="bg-white/20 hover:bg-white/30 text-white border border-white/30 flex items-center gap-2"
+              onClick={() => handleNavigateToSurah(surahDetail.suratSebelumnya!.nomor)}
+            >
+              <ArrowLeftCircle className="h-5 w-5" />
+              <div className="flex flex-col items-start">
+                <span className="text-xs opacity-80">Previous</span>
+                <span>{surahDetail.suratSebelumnya.namaLatin}</span>
+              </div>
+            </Button>
+          ) : (
+            <div></div>
+          )}
+
+          {surahDetail?.suratSelanjutnya ? (
+            <Button
+              variant="outline"
+              className="bg-white/20 hover:bg-white/30 text-white border border-white/30 flex items-center gap-2"
+              onClick={() => handleNavigateToSurah(surahDetail.suratSelanjutnya!.nomor)}
+            >
+              <div className="flex flex-col items-end">
+                <span className="text-xs opacity-80">Next</span>
+                <span>{surahDetail.suratSelanjutnya.namaLatin}</span>
+              </div>
+              <ArrowRightCircle className="h-5 w-5" />
+            </Button>
+          ) : (
+            <div></div>
+          )}
         </div>
       </div>
 
       {/* Media Player */}
       {showMediaPlayer && (
         <MediaPlayer
-          surahName={surah.name}
-          arabicName={surah.arabicName}
+          surahName={currentSurah.name}
+          arabicName={currentSurah.arabicName}
+          audioUrl={selectedAudioUrl}
           onClose={() => setShowMediaPlayer(false)}
         />
       )}
