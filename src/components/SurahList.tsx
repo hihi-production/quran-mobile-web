@@ -65,7 +65,7 @@ const SurahList = ({ searchQuery, onSurahSelect }: SurahListProps) => {
   }, [surahs, searchQuery]);
 
   if (loading) {
-    return <div className="text-white text-center py-8">Loading surahs...</div>;
+    return <div className="text-black text-center py-8">Loading surahs...</div>;
   }
 
   if (error) {
@@ -85,13 +85,13 @@ const SurahList = ({ searchQuery, onSurahSelect }: SurahListProps) => {
               <div className="flex items-center gap-4">
                 {/* Surah Number */}
                 <div className="w-10 h-10 bg-purple-500/30 rounded-lg flex items-center justify-center">
-                  <span className="text-white font-bold text-sm">{surah.number}</span>
+                  <span className="text-black font-bold text-sm">{surah.number}</span>
                 </div>
                 
                 {/* Surah Info */}
                 <div>
-                  <h3 className="text-white font-semibold text-lg">{surah.name}</h3>
-                  <p className="text-white/70 text-sm">
+                  <h3 className="text-black font-semibold text-lg">{surah.name}</h3>
+                  <p className="text-sm">
                     {surah.revelation} • {surah.verses} VERSES
                   </p>
                 </div>
@@ -99,7 +99,7 @@ const SurahList = ({ searchQuery, onSurahSelect }: SurahListProps) => {
               
               {/* Arabic Name */}
               <div className="text-right">
-                <p className="text-white font-semibold text-xl" dir="rtl">{surah.arabicName}</p>
+                <p className="text-black font-semibold text-xl" dir="rtl">{surah.arabicName}</p>
               </div>
             </div>
           </CardContent>
