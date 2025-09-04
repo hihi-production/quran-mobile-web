@@ -1,5 +1,6 @@
-
 import { Card, CardContent } from "@/components/ui/card";
+import { useEffect, useState, useMemo } from "react";
+import { getSurah, ApiSurah } from "@/api";
 
 interface Surah {
   number: number;
@@ -15,23 +16,61 @@ interface SurahListProps {
   onSurahSelect: (surah: Surah) => void;
 }
 
-const surahs: Surah[] = [
-  { number: 1, name: "Al-Fatiah", arabicName: "الفاتحة", englishName: "The Opening", verses: 7, revelation: "MECCAN" },
-  { number: 2, name: "Al-Baqarah", arabicName: "البقرة", englishName: "The Cow", verses: 286, revelation: "MEDINAN" },
-  { number: 3, name: "Al 'Imran", arabicName: "آل عمران", englishName: "The Family of Imran", verses: 200, revelation: "MECCAN" },
-  { number: 4, name: "An-Nisa", arabicName: "النساء", englishName: "The Women", verses: 176, revelation: "MECCAN" },
-  { number: 5, name: "Al-Ma'idah", arabicName: "المائدة", englishName: "The Table", verses: 120, revelation: "MEDINAN" },
-  { number: 6, name: "Al-An'am", arabicName: "الأنعام", englishName: "The Cattle", verses: 165, revelation: "MECCAN" },
-  { number: 7, name: "Al-A'raf", arabicName: "الأعراف", englishName: "The Heights", verses: 206, revelation: "MECCAN" },
-  { number: 8, name: "Al-Anfal", arabicName: "الأنفال", englishName: "The Spoils of War", verses: 75, revelation: "MEDINAN" },
-];
+// Custom hook for fetching surahs
+const useSurahs = () => {
+  const [surahs, setSurahs] = useState<Surah[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchSurahs = async () => {
+      try {
+        setLoading(true);
+        const data = await getSurah();
+        
+        // Transform the API data to match our Surah interface
+        const transformedSurahs: Surah[] = data.data.map((surah: ApiSurah) => ({
+          number: surah.nomor,
+          name: surah.namaLatin,
+          arabicName: surah.nama,
+          englishName: surah.arti,
+          verses: surah.jumlahAyat,
+          revelation: surah.tempatTurun.toUpperCase() === "MEKAH" ? "MECCAN" : "MEDINAN"
+        }));
+        
+        setSurahs(transformedSurahs);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'An unknown error occurred');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchSurahs();
+  }, []);
+
+  return { surahs, loading, error };
+};
 
 const SurahList = ({ searchQuery, onSurahSelect }: SurahListProps) => {
-  const filteredSurahs = surahs.filter(surah => 
-    surah.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    surah.englishName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    surah.arabicName.includes(searchQuery)
-  );
+  const { surahs, loading, error } = useSurahs();
+
+  // Memoize filtered surahs to prevent unnecessary recalculations
+  const filteredSurahs = useMemo(() => {
+    return surahs.filter(surah => 
+      surah.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      surah.englishName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      surah.arabicName.includes(searchQuery)
+    );
+  }, [surahs, searchQuery]);
+
+  if (loading) {
+    return <div className="text-white text-center py-8">Loading surahs...</div>;
+  }
+
+  if (error) {
+    return <div className="text-red-400 text-center py-8">Error: {error}</div>;
+  }
 
   return (
     <div className="space-y-3">
