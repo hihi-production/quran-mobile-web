@@ -49,7 +49,7 @@ const SurahDetail = ({
           response.data.audioFull &&
           Object.keys(response.data.audioFull).length > 0
         ) {
-          const firstReciterKey = Object.keys(response.data.audioFull)[0];
+          const firstReciterKey = Object.keys(response.data.audioFull)[1];
           setSelectedAudioUrl(response.data.audioFull[firstReciterKey].trim());
         }
       } catch (err) {
