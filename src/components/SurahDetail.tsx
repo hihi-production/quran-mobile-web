@@ -92,10 +92,7 @@ const SurahDetail = ({
         arabicName: response.data.nama,
         englishName: response.data.arti,
         verses: response.data.jumlahAyat,
-        revelation:
-          response.data.tempatTurun.toUpperCase() === "MEKAH"
-            ? "MECCAN"
-            : "MEDINAN",
+        revelation: response.data.tempatTurun,
       };
 
       setCurrentSurah(newSurah);
@@ -160,7 +157,7 @@ const SurahDetail = ({
             <div className="flex items-center justify-center gap-4 text-sm">
               <span>{currentSurah.revelation}</span>
               <span>•</span>
-              <span>{currentSurah.verses} VERSES</span>
+              <span>{currentSurah.verses} Ayat</span>
             </div>
             <div className="mt-4">
               <p className="text-3xl font-bold" dir="rtl">
