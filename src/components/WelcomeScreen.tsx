@@ -1,10 +1,12 @@
 import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 
-interface WelcomeScreenProps {
-  onGetStarted: () => void;
-}
+const WelcomeScreen = () => {
+  const navigate = useNavigate();
 
-const WelcomeScreen = ({ onGetStarted }: WelcomeScreenProps) => {
+  const handleGetStarted = () => {
+    navigate("/home");
+  };
   return (
     <div className="min-h-screen bg-primary flex items-center justify-center p-4">
       <div className="text-center max-w-sm mx-auto">
@@ -68,7 +70,7 @@ const WelcomeScreen = ({ onGetStarted }: WelcomeScreenProps) => {
         </div>
 
         <Button
-          onClick={onGetStarted}
+          onClick={handleGetStarted}
           className="w-full bg-gradient-to-r from-orange-400 to-orange-500 hover:from-orange-500 hover:to-orange-600 text-white font-semibold py-4 rounded-2xl shadow-lg transform transition-all duration-200 hover:scale-105"
         >
           Get Started

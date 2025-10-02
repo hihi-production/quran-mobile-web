@@ -3,8 +3,10 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Index from "./pages/Index";
+import WelcomeScreen from "./components/WelcomeScreen";
 import NotFound from "./pages/NotFound";
+import HomePage from "./pages/HomePage";
+import SurahDetailPage from "./pages/SurahDetailPage";
 
 const queryClient = new QueryClient();
 
@@ -15,7 +17,19 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Index />} />
+          <Route path="/" element={<WelcomeScreen />} />
+          <Route path="/home" element={<HomePage />} />
+          <Route path="/surah/:surahId" element={<SurahDetailPage />} />
+          {/* Future routes for new modules */}
+          <Route
+            path="/hadist"
+            element={<div>Hadist Module - Coming Soon</div>}
+          />
+          <Route path="/doa" element={<div>Doa Module - Coming Soon</div>} />
+          <Route
+            path="/jadwal-sholat"
+            element={<div>Jadwal Sholat Module - Coming Soon</div>}
+          />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

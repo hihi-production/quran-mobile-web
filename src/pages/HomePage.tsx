@@ -2,9 +2,8 @@ import { useState } from "react";
 import { BookOpenText, BookText, HeartHandshake, Compass } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import WelcomeScreen from "@/components/WelcomeScreen";
+import { useNavigate } from "react-router-dom";
 import SurahList from "@/components/SurahList";
-import SurahDetail from "@/components/SurahDetail";
 import BottomNavigation from "@/components/BottomNavigation";
 
 interface Surah {
@@ -16,42 +15,17 @@ interface Surah {
   revelation: string;
 }
 
-const Index = () => {
-  const [currentScreen, setCurrentScreen] = useState<
-    "welcome" | "home" | "surah"
-  >("welcome");
-  const [selectedSurah, setSelectedSurah] = useState<Surah | null>(null);
+const HomePage = () => {
   const [searchQuery, setSearchQuery] = useState("");
-  const [activeTab, setActiveTab] = useState("home");
-
-  const handleGetStarted = () => {
-    setCurrentScreen("home");
-  };
+  const navigate = useNavigate();
 
   const handleSurahSelect = (surah: Surah) => {
-    setSelectedSurah(surah);
-    setCurrentScreen("surah");
+    navigate(`/surah/${surah.number}`);
   };
 
-  const handleBackToHome = () => {
-    setCurrentScreen("home");
-    setSelectedSurah(null);
+  const handleFeatureClick = (feature: string) => {
+    navigate(`/${feature}`);
   };
-
-  const handleTabChange = (tab: string) => {
-    setActiveTab(tab);
-    if (tab === "home") {
-      setCurrentScreen("home");
-    }
-  };
-
-  if (currentScreen === "welcome") {
-    return <WelcomeScreen onGetStarted={handleGetStarted} />;
-  }
-
-  if (currentScreen === "surah" && selectedSurah) {
-    return <SurahDetail surah={selectedSurah} onBack={handleBackToHome} />;
-  }
 
   return (
     <div className="min-h-screen bg-primary pb-20">
@@ -154,7 +128,10 @@ const Index = () => {
               </Button>
             </div>
             <div className="grid grid-cols-4 gap-4">
-              <div className="flex flex-col items-center">
+              <div
+                className="flex flex-col items-center cursor-pointer"
+                onClick={() => handleFeatureClick("home")}
+              >
                 <div className="sm:w-16 sm:h-16 w-12 h-12 bg-primary rounded-2xl flex items-center justify-center mb-2">
                   <BookOpenText className="h-8 w-8 text-primary-foreground" />
                 </div>
@@ -162,7 +139,10 @@ const Index = () => {
                   Quran
                 </span>
               </div>
-              <div className="flex flex-col items-center">
+              <div
+                className="flex flex-col items-center cursor-pointer"
+                onClick={() => handleFeatureClick("hadist")}
+              >
                 <div className="sm:w-16 sm:h-16 w-12 h-12 bg-secondary rounded-2xl flex items-center justify-center mb-2">
                   <BookText className="h-8 w-8 text-primary" />
                 </div>
@@ -170,18 +150,24 @@ const Index = () => {
                   Hadist
                 </span>
               </div>
-              <div className="flex flex-col items-center">
+              <div
+                className="flex flex-col items-center cursor-pointer"
+                onClick={() => handleFeatureClick("doa")}
+              >
                 <div className="sm:w-16 sm:h-16 w-12 h-12 bg-secondary rounded-2xl flex items-center justify-center mb-2">
                   <HeartHandshake className="h-8 w-8 text-primary" />
                 </div>
                 <span className="text-sm text-foreground font-medium">Doa</span>
               </div>
-              <div className="flex flex-col items-center">
+              <div
+                className="flex flex-col items-center cursor-pointer"
+                onClick={() => handleFeatureClick("jadwal-sholat")}
+              >
                 <div className="sm:w-16 sm:h-16 w-12 h-12 bg-secondary rounded-2xl flex items-center justify-center mb-2">
                   <Compass className="h-8 w-8 text-primary" />
                 </div>
                 <span className="text-sm text-foreground font-medium">
-                  Qiblat
+                  Jadwal Sholat
                 </span>
               </div>
             </div>
@@ -204,9 +190,9 @@ const Index = () => {
       </div>
 
       {/* Bottom Navigation */}
-      {/* <BottomNavigation activeTab={activeTab} onTabChange={handleTabChange} /> */}
+      <BottomNavigation />
     </div>
   );
 };
 
-export default Index;
+export default HomePage;
