@@ -9,6 +9,7 @@ import HomePage from "./pages/HomePage";
 import SurahDetailPage from "./pages/SurahDetailPage";
 import DoaPage from "./pages/DoaPage";
 import DoaDetailPage from "./pages/DoaDetailPage";
+import JadwalSholatPage from "./pages/JadwalSholatPage";
 
 const queryClient = new QueryClient();
 
@@ -29,10 +30,7 @@ const App = () => (
           />
           <Route path="/doa" element={<DoaPage />} />
           <Route path="/doa/:doaId" element={<DoaDetailPage />} />
-          <Route
-            path="/jadwal-sholat"
-            element={<div>Jadwal Sholat Module - Coming Soon</div>}
-          />
+          <Route path="/jadwal-sholat" element={<JadwalSholatPage />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
