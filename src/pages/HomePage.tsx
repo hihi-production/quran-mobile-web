@@ -1,5 +1,10 @@
 import { useState } from "react";
-import { BookOpenText, BookText, HeartHandshake, Compass } from "lucide-react";
+import {
+  BookOpenText,
+  BookText,
+  HeartHandshake,
+  ClockAlertIcon,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useNavigate } from "react-router-dom";
@@ -164,7 +169,7 @@ const HomePage = () => {
                 onClick={() => handleFeatureClick("jadwal-sholat")}
               >
                 <div className="sm:w-16 sm:h-16 w-12 h-12 bg-secondary rounded-2xl flex items-center justify-center mb-2">
-                  <Compass className="h-8 w-8 text-primary" />
+                  <ClockAlertIcon className="h-8 w-8 text-primary" />
                 </div>
                 <span className="text-sm text-foreground font-medium">
                   Jadwal Sholat

@@ -36,14 +36,38 @@ export interface ApiSurah {
 
 const baseUrl = "https://equran.id/api/v2";
 
+export interface ApiDoa {
+  id: number;
+  grup: string;
+  nama: string;
+  ar: string;
+  tr: string;
+  idn: string;
+  tentang: string;
+  tag: string[];
+}
+
+export interface ApiDoaListResponse {
+  status: string;
+  total: number;
+  data: ApiDoa[];
+}
+
+export interface ApiDoaDetailResponse {
+  status: string;
+  data: ApiDoa;
+}
+
+const baseUrlDoa = "https://equran.id/api/doa";
+
 export const getSurah = async (): Promise<ApiResponse<ApiSurah[]>> => {
   try {
     const response = await fetch(`${baseUrl}/surat`);
-    
+
     if (!response.ok) {
       throw new Error(`API request failed with status ${response.status}`);
     }
-    
+
     const data = await response.json();
     return data;
   } catch (error) {
@@ -52,18 +76,54 @@ export const getSurah = async (): Promise<ApiResponse<ApiSurah[]>> => {
   }
 };
 
-export const getSurahById = async (id: number): Promise<ApiResponse<ApiSurah>> => {
+export const getSurahById = async (
+  id: number
+): Promise<ApiResponse<ApiSurah>> => {
   try {
     const response = await fetch(`${baseUrl}/surat/${id}`);
-    
+
     if (!response.ok) {
       throw new Error(`API request failed with status ${response.status}`);
     }
-    
+
     const data = await response.json();
     return data;
   } catch (error) {
     console.error(`Error fetching surah ${id}:`, error);
+    throw error;
+  }
+};
+
+export const apidoaList = async (): Promise<ApiDoaListResponse> => {
+  try {
+    const response = await fetch(baseUrlDoa);
+
+    if (!response.ok) {
+      throw new Error(`API request failed with status ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error fetching doa list:", error);
+    throw error;
+  }
+};
+
+export const apidoaDetail = async (
+  id: number
+): Promise<ApiDoaDetailResponse> => {
+  try {
+    const response = await fetch(`${baseUrlDoa}/${id}`);
+
+    if (!response.ok) {
+      throw new Error(`API request failed with status ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error(`Error fetching doa ${id}:`, error);
     throw error;
   }
 };

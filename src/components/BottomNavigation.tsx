@@ -1,4 +1,4 @@
-import { BookOpen, Home, Search, Settings } from "lucide-react";
+import { BookOpen, Home, HeartHandshake, ClockAlertIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate, useLocation } from "react-router-dom";
 
@@ -8,8 +8,13 @@ const BottomNavigation = () => {
   const navItems = [
     { id: "home", path: "/home", icon: Home, label: "Home" },
     { id: "hadist", path: "/hadist", icon: BookOpen, label: "Hadist" },
-    { id: "doa", path: "/doa", icon: Search, label: "Doa" },
-    { id: "qiblat", path: "/qiblat", icon: Settings, label: "Qiblat" },
+    { id: "doa", path: "/doa", icon: HeartHandshake, label: "Doa" },
+    {
+      id: "jadwal-sholat",
+      path: "/jadwal-sholat",
+      icon: ClockAlertIcon,
+      label: "Jadwal Sholat",
+    },
   ];
 
   const handleNavigation = (path: string) => {
@@ -17,12 +22,13 @@ const BottomNavigation = () => {
   };
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-white/20 z-50">
+    <div className="fixed bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md border-t border-white/20 z-50 lg:hidden">
       <div className="flex items-center justify-around py-2 px-4">
         {navItems.map((item) => {
           const isActive =
             location.pathname === item.path ||
-            (item.path === "/home" && location.pathname.startsWith("/surah"));
+            (item.path === "/home" && location.pathname.startsWith("/surah")) ||
+            (item.path === "/doa" && location.pathname.startsWith("/doa"));
           return (
             <Button
               key={item.id}

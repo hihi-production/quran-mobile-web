@@ -7,6 +7,8 @@ import WelcomeScreen from "./components/WelcomeScreen";
 import NotFound from "./pages/NotFound";
 import HomePage from "./pages/HomePage";
 import SurahDetailPage from "./pages/SurahDetailPage";
+import DoaPage from "./pages/DoaPage";
+import DoaDetailPage from "./pages/DoaDetailPage";
 
 const queryClient = new QueryClient();
 
@@ -25,7 +27,8 @@ const App = () => (
             path="/hadist"
             element={<div>Hadist Module - Coming Soon</div>}
           />
-          <Route path="/doa" element={<div>Doa Module - Coming Soon</div>} />
+          <Route path="/doa" element={<DoaPage />} />
+          <Route path="/doa/:doaId" element={<DoaDetailPage />} />
           <Route
             path="/jadwal-sholat"
             element={<div>Jadwal Sholat Module - Coming Soon</div>}
